@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <base target="_top">
+    <meta charset="UTF-8">
+    <title>Générateur de JSON pour prompt</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: { 
+          extend: { 
+            fontFamily: { sans: ['"Inter"', 'sans-serif'] },
+            colors: { brand: { 600: '#2563eb', 700: '#1d4ed8' } },
+            fontSize: { xxs: '10px', xs: '11px', sm: '12px', base: '13px' }
+          } 
+        }
+      }
+    </script>
+    <style>
+      body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; color: #334155; font-size: 12px; }
+      
+      .input-field { 
+        width: 100%; border-radius: 4px; border: 1px solid #cbd5e1; 
+        padding: 5px 8px; font-size: 12px; background-color: #fff; 
+        color: #0f172a; outline: none; transition: border-color 0.15s; height: 28px;
+      }
+      textarea.input-field { height: auto; min-height: 40px; }
+      .input-field:focus { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1); }
+      
+      label { display: block; font-size: 10px; font-weight: 700; color: #64748b; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.03em; }
+      
+      .group-box { background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; margin-bottom: 10px; }
+      .group-title { font-weight: 700; font-size: 12px; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px; color: #1e293b; }
+      
+      .hidden-section { display: none; }
+      .visible-section { display: block; }
+      
+      /* JSON Colors */
+      .json-key { color: #0284c7; } .json-string { color: #16a34a; } .json-number { color: #d97706; }
+      
+      ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    </style>
+  </head>
+  <body class="h-screen flex flex-col overflow-hidden">
+
+    <div class="bg-white border-b border-gray-200 px-4 py-2 flex justify-between items-center shrink-0 z-20 h-12 shadow-sm">
+      <div class="flex items-center gap-3">
+        <h1 class="font-bold text-slate-800 text-sm">Générateur de JSON <span class="text-brand-600">pour prompt IA générative</span></h1>
+        
+        <select id="cat_selector" onchange="switchMode()" class="bg-brand-600 text-white border-0 text-xs font-bold rounded py-1 px-3 cursor-pointer hover:bg-brand-700 shadow-sm">
+          <option value="portrait">👤 PORTRAIT</option>
+          <option value="animal">🐾 ANIMAL</option>
+          <option value="landscape">🏔️ PAYSAGE</option>
+          <option value="object">📦 OBJET</option>
+        </select>
+      </div>
+
+      <button onclick="copyToClipboard()" id="btnCopy" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-1.5 px-4 rounded transition flex items-center gap-2">
+        <span>COPIER JSON (EN)</span>
+      </button>
+    </div>
+
+    <main class="flex-grow flex flex-col lg:flex-row overflow-hidden">
+      
+      <div class="w-full lg:w-1/2 overflow-y-auto p-3 bg-slate-50 border-r border-gray-200 custom-scrollbar">
+        <form id="mainForm" oninput="updateJson()">
+
+          <div class="group-box border-l-4 border-l-slate-400">
+             <div class="group-title">📝 Concept (Sera traduit auto si simple)</div>
+             <textarea id="global_desc" class="input-field" placeholder="Ex: A futuristic samurai woman in the rain... (L'anglais est recommandé ici)"></textarea>
+          </div>
+
+          <div id="mode_portrait" class="visible-section">
+            <div class="group-box border-l-4 border-l-blue-500">
+              <div class="group-title text-blue-700">👤 Identité (Identity)</div>
+              <div class="grid grid-cols-2 gap-2 mb-2">
+                <div><label>Genre</label>
+                   <select id="p_gender" class="input-field">
+                      <option value="Female">Femme</option>
+                      <option value="Male">Homme</option>
+                      <option value="Non-binary">Non-binaire</option>
+                      <option value="Girl">Enfant (Fille)</option>
+                      <option value="Boy">Enfant (Garçon)</option>
+                      <option value="Elderly woman">Femme Âgée</option>
+                      <option value="Elderly man">Homme Âgé</option>
+                   </select>
+                </div>
+                <div><label>Âge</label>
+                   <select id="p_age" class="input-field">
+                      <option value="Young adult, 20s">20-25 ans (Jeune Adulte)</option>
+                      <option value="Adult, 30s">30-40 ans (Adulte)</option>
+                      <option value="Teenager">Adolescent</option>
+                      <option value="Senior, 60s">60+ (Senior)</option>
+                      <option value="Child">Enfant</option>
+                   </select>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-2 mb-2">
+                <div><label>Teint / Peau</label>
+                   <select id="p_skin" class="input-field">
+                      <option value="Fair, porcelain complexion">Clair, Porcelaine</option>
+                      <option value="Olive skin tone">Mat, Olive</option>
+                      <option value="Dark ebony skin">Noir, Ébène</option>
+                      <option value="Tanned, sun-kissed">Bronzé, Hâlé</option>
+                      <option value="Freckled skin">Taches de rousseur</option>
+                      <option value="Wrinkled, textured skin">Ridé, Texturé</option>
+                   </select>
+                </div>
+                <div><label>Yeux</label>
+                   <select id="p_eyes" class="input-field">
+                      <option value="Piercing blue eyes">Bleu Perçant</option>
+                      <option value="Hazel eyes">Marron Noisette</option>
+                      <option value="Emerald green eyes">Vert Émeraude</option>
+                      <option value="Steel grey eyes">Gris Acier</option>
+                      <option value="Dark brown eyes">Noirs Profonds</option>
+                      <option value="Heterochromia">Vairons</option>
+                   </select>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div><label>Cheveux</label>
+                   <select id="p_hair" class="input-field">
+                      <option value="Long wavy hair">Longs et Ondulés</option>
+                      <option value="Short bob cut">Carré Court (Bob)</option>
+                      <option value="Messy bun">Attachés (Chignon)</option>
+                      <option value="Short textured hair">Courts et Texturés</option>
+                      <option value="Curly afro hair">Frisés / Afro</option>
+                      <option value="Bald">Chauve</option>
+                   </select>
+                </div>
+                <div><label>Couleur Cheveux</label>
+                   <select id="p_hair_col" class="input-field">
+                      <option value="Dark brunette">Brun Foncé</option>
+                      <option value="Platinum blond">Blond Polaire</option>
+                      <option value="Fiery red">Roux Flamboyant</option>
+                      <option value="Jet black">Noir Jais</option>
+                      <option value="Silver grey">Gris / Blanc</option>
+                      <option value="Pink dyed">Coloré (Rose)</option>
+                   </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="group-box border-l-4 border-l-indigo-500">
+               <div class="group-title text-indigo-700">👗 Style (Attire)</div>
+               <div class="grid grid-cols-2 gap-2 mb-2">
+                  <div><label>Vêtement (Haut)</label><input type="text" id="p_cloth" class="input-field" value="Oversized knitted sweater"></div>
+                  <div><label>Matière</label>
+                     <select id="p_fabric" class="input-field">
+                        <option value="Thick wool">Laine épaisse</option>
+                        <option value="Light silk">Soie légère</option>
+                        <option value="Worn leather">Cuir usé</option>
+                        <option value="Cotton">Coton basique</option>
+                        <option value="Fine lace">Dentelle fine</option>
+                     </select>
+                  </div>
+               </div>
+               <div><label>Look</label>
+                  <select id="p_style" class="input-field">
+                     <option value="Casual chic">Casual Chic</option>
+                     <option value="Futuristic techwear">Futuriste / Techwear</option>
+                     <option value="Bohemian style">Bohème</option>
+                     <option value="Vintage Victorian">Costume d'époque</option>
+                     <option value="Streetwear">Streetwear</option>
+                  </select>
+               </div>
+            </div>
+          </div>
+
+          <div id="mode_animal" class="hidden-section">
+             <div class="group-box border-l-4 border-l-orange-500">
+                <div class="group-title text-orange-700">🐾 Faune (Wildlife)</div>
+                <div class="grid grid-cols-2 gap-2 mb-2">
+                   <div><label>Classe</label>
+                      <select id="a_class" class="input-field">
+                         <option value="Feline">Félin (Chat, Tigre...)</option>
+                         <option value="Canine">Canidé (Loup, Chien...)</option>
+                         <option value="Bird of prey">Oiseau (Rapace...)</option>
+                         <option value="Reptile">Reptile</option>
+                         <option value="Bear">Ours / Ursidé</option>
+                      </select>
+                   </div>
+                   <div><label>Espèce (En Anglais)</label><input type="text" id="a_species" class="input-field" value="Siberian Tiger"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                   <div><label>Texture Robe</label>
+                      <select id="a_coat" class="input-field">
+                         <option value="Thick fluffy fur">Fourrure dense</option>
+                         <option value="Short sleek fur">Poils ras</option>
+                         <option value="Iridescent feathers">Plumes Irisées</option>
+                         <option value="Shiny scales">Écailles brillantes</option>
+                      </select>
+                   </div>
+                   <div><label>Couleur</label><input type="text" id="a_color" class="input-field" value="Orange and White striped"></div>
+                </div>
+             </div>
+          </div>
+
+          <div id="mode_landscape" class="hidden-section">
+             <div class="group-box border-l-4 border-l-green-500">
+                <div class="group-title text-green-700">🏔️ Environnement (Environment)</div>
+                <div class="grid grid-cols-2 gap-2 mb-2">
+                   <div><label>Biome</label>
+                      <select id="l_biome" class="input-field">
+                         <option value="Alpine Mountain">Montagne Alpine</option>
+                         <option value="Dense Forest">Forêt Dense</option>
+                         <option value="Tropical Beach">Plage Tropicale</option>
+                         <option value="Cyberpunk City">Ville Cyberpunk</option>
+                         <option value="Ancient Ruins">Ruines Anciennes</option>
+                         <option value="Sand Desert">Désert de Sable</option>
+                      </select>
+                   </div>
+                   <div><label>Saison</label>
+                      <select id="l_season" class="input-field">
+                         <option value="Summer, vibrant green">Été (Vert vibrant)</option>
+                         <option value="Autumn, red leaves">Automne (Orange/Rouge)</option>
+                         <option value="Winter, snowy">Hiver (Neige/Glace)</option>
+                         <option value="Spring, blooming">Printemps (Fleurs)</option>
+                      </select>
+                   </div>
+                </div>
+             </div>
+          </div>
+
+          <div id="mode_object" class="hidden-section">
+             <div class="group-box border-l-4 border-l-purple-500">
+                <div class="group-title text-purple-700">📦 Produit (Product)</div>
+                <div class="grid grid-cols-2 gap-2 mb-2">
+                   <div><label>Matériau Principal</label>
+                      <select id="o_mat" class="input-field">
+                         <option value="24k Gold">Or 24 Carats</option>
+                         <option value="Oak Wood">Bois de Chêne</option>
+                         <option value="Transparent Glass">Verre Transparent</option>
+                         <option value="Grained Leather">Cuir Grainé</option>
+                         <option value="Matte Plastic">Plastique Mat</option>
+                         <option value="White Ceramic">Céramique</option>
+                      </select>
+                   </div>
+                   <div><label>Finition</label>
+                      <select id="o_finish" class="input-field">
+                         <option value="Polished, glossy">Poli / Brillant</option>
+                         <option value="Brushed, satin">Brossé / Satiné</option>
+                         <option value="Rough, natural">Rugueux / Naturel</option>
+                         <option value="Worn, patina">Usé / Patiné</option>
+                      </select>
+                   </div>
+                </div>
+                <div><label>Support</label><input type="text" id="o_support" class="input-field" value="Black marble podium"></div>
+             </div>
+          </div>
+
+          <div class="group-box border-l-4 border-l-yellow-500">
+             <div class="group-title text-yellow-700">⚡ Action & Expression</div>
+             <div class="grid grid-cols-2 gap-2 mb-2">
+                <div><label>Pose</label>
+                   <select id="pose_type" class="input-field">
+                      <option value="Front facing">Face Caméra</option>
+                      <option value="Profile view">Profil (Côté)</option>
+                      <option value="Back view">Dos</option>
+                      <option value="Dynamic motion">En Mouvement</option>
+                      <option value="Three-quarter view">Trois-quarts</option>
+                   </select>
+                </div>
+                <div><label>Expression</label>
+                   <select id="expression" class="input-field">
+                      <option value="Neutral, serious">Neutre / Sérieux</option>
+                      <option value="Smiling, joyful">Souriant / Joyeux</option>
+                      <option value="Intense, threatening">Menaçant / Intense</option>
+                      <option value="Melancholic">Mélancolique</option>
+                      <option value="Ethereal, dreamy">Éthéré / Rêveur</option>
+                   </select>
+                </div>
+             </div>
+             <div><label>Détails (Anglais conseillé)</label><input type="text" id="action_detail" class="input-field" value="Looking at the sky"></div>
+          </div>
+
+          <div class="group-box border-l-4 border-l-cyan-500">
+             <div class="group-title text-cyan-700">💡 Lumière & Météo</div>
+             <div class="grid grid-cols-2 gap-2 mb-2">
+                <div><label>Éclairage</label>
+                   <select id="lighting" class="input-field">
+                      <option value="Natural sunlight">Lumière Naturelle</option>
+                      <option value="Studio softbox lighting">Lumière de Studio</option>
+                      <option value="Golden Hour">Heure Dorée</option>
+                      <option value="Blue Hour">Heure Bleue (Crépuscule)</option>
+                      <option value="Dramatic chiaroscuro">Dramatique (Clair-Obscur)</option>
+                      <option value="Volumetric lighting">Volumétrique (Rayons)</option>
+                      <option value="Neon artificial light">Néon / Artificiel</option>
+                   </select>
+                </div>
+                <div><label>Météo</label>
+                   <select id="weather" class="input-field">
+                      <option value="Clear blue sky">Ciel Dégagé</option>
+                      <option value="Cloudy dramatic sky">Nuageux Dramatique</option>
+                      <option value="Foggy, misty">Brume / Brouillard</option>
+                      <option value="Cinematic rain">Pluie Cinématique</option>
+                      <option value="Soft snow">Neige Douce</option>
+                      <option value="Starry night">Nuit Étoilée</option>
+                   </select>
+                </div>
+             </div>
+          </div>
+
+          <div class="group-box border-l-4 border-l-slate-600">
+             <div class="group-title text-slate-700">📸 Technique (Camera)</div>
+             
+             <div class="grid grid-cols-2 gap-2 mb-2">
+                <div><label>Style</label>
+                   <select id="art_style" class="input-field">
+                      <option value="Realistic Photography, 8k">Photographie Réaliste (8k)</option>
+                      <option value="Cinematic Film Look">Cinématographique (Film Look)</option>
+                      <option value="3D Render, Unreal Engine 5">Rendu 3D (Unreal)</option>
+                      <option value="Oil Painting">Peinture à l'Huile</option>
+                      <option value="Anime Style">Anime / Manga</option>
+                      <option value="Black and White Photography">Noir et Blanc</option>
+                   </select>
+                </div>
+                <div><label>Plan</label>
+                   <select id="shot_scale" class="input-field">
+                      <option value="Close-up shot">Gros Plan (Close-up)</option>
+                      <option value="Medium shot">Plan Moyen (Taille)</option>
+                      <option value="Wide shot">Plan Large (Pied)</option>
+                      <option value="Extreme wide shot">Très Grand Plan</option>
+                      <option value="Macro detail">Macro (Détail)</option>
+                   </select>
+                </div>
+             </div>
+
+             <div class="grid grid-cols-3 gap-2 mb-2">
+                <div><label>Objectif</label>
+                   <select id="lens" class="input-field">
+                      <option value="35mm lens">35mm (Standard)</option>
+                      <option value="50mm lens">50mm (Portrait)</option>
+                      <option value="85mm lens">85mm (Portrait Pro)</option>
+                      <option value="16mm wide angle">16mm (Grand Angle)</option>
+                      <option value="200mm telephoto">200mm (Zoom)</option>
+                      <option value="100mm macro lens">100mm Macro</option>
+                   </select>
+                </div>
+                <div><label>Ouverture</label>
+                   <select id="aperture" class="input-field">
+                      <option value="f/1.8">f/1.8 (Flou arrière)</option>
+                      <option value="f/2.8">f/2.8 (Standard)</option>
+                      <option value="f/8">f/8 (Tout net)</option>
+                      <option value="f/16">f/16 (Paysage)</option>
+                   </select>
+                </div>
+                <div><label>Film</label>
+                   <select id="film_stock" class="input-field">
+                      <option value="Digital clean">Numérique (Propre)</option>
+                      <option value="Kodak Portra 400">Kodak Portra 400</option>
+                      <option value="Fujifilm Velvia">Fujifilm Velvia</option>
+                      <option value="35mm Film Grain">Grain 35mm</option>
+                   </select>
+                </div>
+             </div>
+             
+             <div><label>Qualité</label><input type="text" id="quality" class="input-field" value="High resolution, highly detailed texture, 8k, HDR"></div>
+          </div>
+
+          <div class="group-box border-l-4 border-l-red-500">
+             <div class="group-title text-red-700">🚫 Negative Prompt (English)</div>
+             <textarea id="negative" class="input-field" style="color:#b91c1c;">blurry, deformed, bad anatomy, text, watermark, noise, missing fingers, cross-eyed</textarea>
+          </div>
+
+        </form>
+      </div>
+
+      <div class="w-full lg:w-1/2 bg-slate-900 flex flex-col h-full border-l border-gray-700">
+        <div class="flex-grow overflow-auto p-4 custom-scrollbar">
+          <pre id="jsonOutput" class="font-mono text-xs leading-relaxed text-slate-300"></pre>
+        </div>
+      </div>
+
+    </main>
+
+      <div class="mt-6 pt-4 border-t border-slate-200 text-center text-xs text-slate-400 font-medium">
+        Imaginé et développé par <span class="text-slate-600 font-bold">Fabrice Faucheux</span>
+      </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => { switchMode(); });
+
+      function switchMode() {
+        const mode = document.getElementById('cat_selector').value;
+        ['mode_portrait', 'mode_animal', 'mode_landscape', 'mode_object'].forEach(id => {
+           document.getElementById(id).style.display = 'none';
+        });
+        document.getElementById('mode_' + mode).style.display = 'block';
+
+        // Auto-Setup en Anglais
+        const lens = document.getElementById('lens');
+        const shot = document.getElementById('shot_scale');
+        const neg = document.getElementById('negative');
+
+        if(mode === 'portrait') {
+           lens.value = "85mm lens";
+           shot.value = "Close-up shot";
+           neg.value = "blurry, deformed, bad anatomy, crooked teeth, cross-eyed";
+        } else if (mode === 'landscape') {
+           lens.value = "16mm wide angle";
+           shot.value = "Extreme wide shot";
+        } else if (mode === 'animal') {
+           lens.value = "200mm telephoto";
+           shot.value = "Medium shot";
+           neg.value = "blurry, cage, zoo, bars, human hand, deformed";
+        } else if (mode === 'object') {
+           lens.value = "100mm macro lens";
+           shot.value = "Close-up shot";
+        }
+
+        updateJson();
+      }
+
+      function getVal(id) { const el = document.getElementById(id); return el ? el.value : ""; }
+
+      function updateJson() {
+        const mode = document.getElementById('cat_selector').value;
+        const mainDesc = getVal('global_desc');
+
+        let json = {
+          "meta": { "mode": mode, "version": "10.0 International" },
+          "prompt": {
+             "core_description": mainDesc
+          }
+        };
+
+        if (mode === 'portrait') {
+           json.subject = {
+              "type": "Human",
+              "demographics": { "gender": getVal('p_gender'), "age": getVal('p_age') },
+              "physical_attributes": { "skin": getVal('p_skin'), "eyes": getVal('p_eyes'), "hair_style": getVal('p_hair'), "hair_color": getVal('p_hair_col') },
+              "attire": { "clothing": getVal('p_cloth'), "fabric": getVal('p_fabric'), "style": getVal('p_style') }
+           };
+        } else if (mode === 'animal') {
+           json.subject = {
+              "type": "Animal",
+              "identity": { "class": getVal('a_class'), "species": getVal('a_species') },
+              "appearance": { "coat_texture": getVal('a_coat'), "color": getVal('a_color') }
+           };
+        } else if (mode === 'landscape') {
+           json.subject = {
+              "type": "Location",
+              "environment": { "biome": getVal('l_biome'), "season": getVal('l_season') }
+           };
+        } else if (mode === 'object') {
+           json.subject = {
+              "type": "Product",
+              "details": { "material": getVal('o_mat'), "finish": getVal('o_finish'), "support": getVal('o_support') }
+           };
+        }
+
+        json.action = {
+           "pose": getVal('pose_type'),
+           "expression": getVal('expression'),
+           "details": getVal('action_detail')
+        };
+
+        json.scene = {
+           "lighting": getVal('lighting'),
+           "weather": getVal('weather')
+        };
+
+        json.camera_technique = {
+           "artistic_style": getVal('art_style'),
+           "shot_scale": getVal('shot_scale'),
+           "gear": {
+              "lens": getVal('lens'),
+              "aperture": getVal('aperture'),
+              "film_type": getVal('film_stock')
+           },
+           "quality_keywords": getVal('quality')
+        };
+
+        json.negative_prompt = getVal('negative').split(',').map(s => s.trim());
+
+        const jsonStr = JSON.stringify(json, null, 2);
+        document.getElementById('jsonOutput').innerHTML = syntaxHighlight(jsonStr);
+        window.currentJsonStr = jsonStr;
+      }
+
+      function copyToClipboard() {
+        if(window.currentJsonStr) {
+          navigator.clipboard.writeText(window.currentJsonStr).then(() => {
+            const btn = document.getElementById('btnCopy');
+            const old = btn.innerHTML;
+            btn.innerHTML = `<span class="text-green-400">✓ COPIED</span>`;
+            setTimeout(() => btn.innerHTML = old, 1500);
+          });
+        }
+      }
+
+      function syntaxHighlight(json) {
+        if (!json) return "";
+        json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+          let cls = 'json-number';
+          if (/^"/.test(match)) {
+            if (/:$/.test(match)) cls = 'json-key';
+            else cls = 'json-string';
+          } else if (/true|false/.test(match)) {
+             cls = 'json-bool';
+          }
+          return '<span class="' + cls + '">' + match + '</span>';
+        });
+      }
+    </script>
+  </body>
+</html>
