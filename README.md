@@ -1,64 +1,44 @@
-**Générateur de Prompt JSON pour IA / AI JSON Prompt Generator**
+# Générateur de Prompt JSON pour IA (AI JSON Prompt Generator)
 
-Ce projet est un outil web interactif conçu pour générer des prompts structurés au format JSON, optimisés pour les modèles d'IA générative d'images (Nano Banana, Midjourney, DALL-E 3, Stable Diffusion, Flux).
+![License MIT](https://img.shields.io/badge/License-MIT-blue.svg)
+![Platform](https://img.shields.io/badge/Platform-Google%20Apps%20Script-green)
+![Runtime](https://img.shields.io/badge/Google%20Apps%20Script-V8-green)
+![Author](https://img.shields.io/badge/Auteur-Fabrice%20Faucheux-orange)
 
----
-
-## 🇫🇷 Français
-
-### Description
-Une interface utilisateur propre et moderne pour créer des descriptions d'images complexes sans avoir à écrire le code JSON manuellement. L'outil formate automatiquement les demandes en anglais pour une meilleure compatibilité avec les IA.
-
-### Fonctionnalités
-* **4 Modes :** Portrait, Animal, Paysage, Objet.
-* **Interface Réactive :** Utilise Tailwind CSS pour un design fluide.
-* **Export JSON :** Génération en temps réel avec coloration syntaxique.
-* **Copie Rapide :** Bouton pour copier le JSON formaté dans le presse-papier.
-* **Paramètres Photo :** Simulation d'objectifs (85mm, 16mm...), ouverture, et types de films.
-
-### Comment l'utiliser
-
-#### Option 1 : Utilisation directe via GitHub (Pages ou Local)
-Le fichier `Index.html` fonctionne de manière autonome (toute la logique est côté client).
-1.  Téléchargez le fichier `Index.html`.
-2.  Ouvrez-le dans votre navigateur.
-3.  **GitHub Pages :** Activez simplement GitHub Pages dans les paramètres de votre dépôt pour le rendre accessible via une URL publique.
-
-#### Option 2 : Google Apps Script
-1.  Créez un nouveau projet sur [script.google.com](https://script.google.com).
-2.  Copiez le contenu de `Code.gs` dans l'éditeur de script.
-3.  Créez un fichier HTML nommé `Index` et collez-y le code de `Index.html`.
-4.  Déployez en tant qu'application web.
+> **Générez des prompts structurés et complexes pour Midjourney, DALL-E 3 et Stable Diffusion sans écrire une seule ligne de code.**
 
 ---
 
-## 🇺🇸 English
+## 📖 Description
 
-### Description
-A clean, modern web interface to create complex image descriptions without manually writing JSON code. The tool automatically formats requests in English for better AI compatibility.
+Ce projet est une interface web interactive (Single Page Application) conçue pour standardiser la création de prompts pour les IA génératives d'images. Plutôt que de tâtonner avec du langage naturel imprécis, cet outil génère un objet **JSON structuré** contenant tous les paramètres techniques (objectif, éclairage, style) et artistiques.
 
-### Features
-* **4 Modes:** Portrait, Animal, Landscape, Object.
-* **Responsive Interface:** Uses Tailwind CSS for a fluid design.
-* **JSON Export:** Real-time generation with syntax highlighting.
-* **Quick Copy:** Button to copy the formatted JSON to the clipboard.
-* **Photo Settings:** Simulation of lenses (85mm, 16mm...), aperture, and film stocks.
+L'application est **"Client-Side Only"** (toute la logique est dans le navigateur), ce qui la rend extrêmement rapide et facile à héberger, que ce soit sur GitHub Pages ou via Google Apps Script.
 
-### How to Use
-
-#### Option 1: Direct Usage via GitHub (Pages or Local)
-The `Index.html` file works standalone (all logic is client-side).
-1.  Download the `Index.html` file.
-2.  Open it in your browser.
-3.  **GitHub Pages:** Simply enable GitHub Pages in your repository settings to make it accessible via a public URL.
-
-#### Option 2: Google Apps Script
-1.  Create a new project on [script.google.com](https://script.google.com).
-2.  Copy the content of `Code.gs` into the script editor.
-3.  Create an HTML file named `Index` and paste the code from `Index.html`.
-4.  Deploy as a web app.
+### 🎯 Pourquoi utiliser le format JSON pour les prompts ?
+* **Précision** : Sépare clairement le sujet, l'action et le style technique.
+* **Reproductibilité** : Permet de réutiliser des configurations techniques (ex: un setup caméra spécifique) sur différents sujets.
+* **Compatibilité** : Optimisé pour les modèles récents (Midjourney v6, Flux, DALL-E 3) qui interprètent de mieux en mieux les structures de données.
 
 ---
 
-## License
-MIT License - Copyright (c) 2026 Fabrice Faucheux
+## ✨ Fonctionnalités Clés
+
+| Catégorie | Détails |
+| :--- | :--- |
+| **4 Modes Dédiés** | `👤 Portrait` (Humain), `🐾 Animal` (Faune), `🏔️ Paysage` (Environnement), `📦 Objet` (Packshot). |
+| **UX/UI Moderne** | Interface fluide construite avec **Tailwind CSS**, totalement responsive (Mobile & Desktop). |
+| **Photographie Virtuelle** | Simulation précise d'objectifs (16mm, 85mm...), d'ouvertures (f/1.8, f/8) et de pellicules (Kodak Portra, Fujifilm). |
+| **Traduction Auto** | Les champs de sélection sont en Français pour l'utilisateur, mais le JSON généré est en **Anglais** pour l'IA. |
+| **Syntax Highlighting** | Visualisation en temps réel du code JSON généré avec coloration syntaxique. |
+
+---
+
+## 📂 Structure du Projet
+
+```text
+gemini_prompt_banana_json/
+├── Code.gs          # Script Backend (uniquement pour déploiement Google Apps Script)
+├── Index.html       # L'application complète (HTML + CSS + JS Logique)
+├── LICENSE          # Licence MIT
+└── README.md        # Documentation du projet
