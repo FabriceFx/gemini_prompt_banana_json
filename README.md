@@ -14,6 +14,7 @@
 Ce projet est une interface web interactive (Single Page Application) conçue pour standardiser la création de prompts pour les IA génératives d'images. Plutôt que de tâtonner avec du langage naturel imprécis, cet outil génère un objet **JSON structuré** contenant tous les paramètres techniques (objectif, éclairage, style) et artistiques.
 
 L'application est **"Client-Side Only"** (toute la logique est dans le navigateur), ce qui la rend extrêmement rapide et facile à héberger, que ce soit sur GitHub Pages ou via Google Apps Script.
+https://fabricefx.github.io/gemini_prompt_banana_json/index.html
 
 ### 🎯 Pourquoi utiliser le format JSON pour les prompts ?
 * **Précision** : Sépare clairement le sujet, l'action et le style technique.
