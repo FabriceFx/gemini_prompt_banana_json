@@ -1,8 +1,6 @@
-# gemini_prompt_banana_json
-
 **Générateur de Prompt JSON pour IA / AI JSON Prompt Generator**
 
-Ce projet est un outil web interactif conçu pour générer des prompts structurés au format JSON, optimisés pour les modèles d'IA générative d'images (Midjourney, DALL-E 3, Stable Diffusion, Flux).
+Ce projet est un outil web interactif conçu pour générer des prompts structurés au format JSON, optimisés pour les modèles d'IA générative d'images (Nano Banana, Midjourney, DALL-E 3, Stable Diffusion, Flux).
 
 ---
 
